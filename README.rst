@@ -127,7 +127,7 @@ Where can I report issues or make Feature Requests?
 Issues can be reported on the `GitHub repository's Issues
 section. <https://github.com/teward/dmarcmsg/issues>`__
 
-.. |Travis-CI| image:: https://travis-ci.org/teward/imaplibext.svg?branch=master
+.. |Travis-CI| image:: https://travis-ci.org/teward/dmarcmsg.svg?branch=master
    :target: https://travis-ci.org/teward/dmarcmsg
-.. |CircleCI| image:: https://circleci.com/gh/teward/imaplibext.svg?style=shield
+.. |CircleCI| image:: https://circleci.com/gh/teward/dmarcmsg.svg?style=shield
    :target: https://circleci.com/gh/teward/dmarcmsg
