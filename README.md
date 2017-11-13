@@ -12,8 +12,8 @@
 
 | CI Provider | Status                                                                                                                                                              |
 |:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Travis CI   | [![Travis-CI](https://travis-ci.org/teward/imaplibext.svg?branch=master)](https://travis-ci.org/teward/dmarcmsg)                                                  |
-| CircleCI    | [![CircleCI](https://circleci.com/gh/teward/imaplibext.svg?style=shield)](https://circleci.com/gh/teward/dmarcmsg)                                                |
+| Travis CI   | [![Travis-CI](https://travis-ci.org/teward/dmarcmsg.svg?branch=master)](https://travis-ci.org/teward/dmarcmsg)                                                  |
+| CircleCI    | [![CircleCI](https://circleci.com/gh/teward/dmarcmsg.svg?style=shield)](https://circleci.com/gh/teward/dmarcmsg)                                                |
 
 
 ## Description
