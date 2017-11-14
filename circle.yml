@@ -4,12 +4,12 @@ machine:
     - if [[ $(pyenv versions | grep 3.6.3) -eq "" ]] ; then pyenv install 3.6.3 ; fi
 dependencies:
   cache_directories:
-    - "~/.pyenv"
+    - "/opt/circleci/.pyenv/"
     - "~/virtualenvs"
     - "~/.cache/pip"
   override:
     - case $CIRCLE_NODE_INDEX in 0) pyenv local 2.7.14 ;; 1) pyenv local 3.6.3 ;; esac
-    - echo "Python Version: $(pyenv local)"
+    - shell echo "Python Version: $(pyenv local)"
     - case $CIRCLE_NODE_INDEX in 0) pip install flake8 --upgrade ;; 1) pip3 install flake8 --upgrade ;; esac
 test:
   override:
