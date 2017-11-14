@@ -1,9 +1,10 @@
 machine:
   post:
     - if [[ $(pyenv versions | grep 2.7.14) -eq "" ]] ; then pyenv install 2.7.14 ; fi
-    - if [[ $(pyenv versions | grep 3.6.3) -eq "" ]] ; then pyenv install 3.6.3 ; fipyenv install 3.6.3
+    - if [[ $(pyenv versions | grep 3.6.3) -eq "" ]] ; then pyenv install 3.6.3 ; fi
 dependencies:
   cache_directories:
+    - "~/.pyenv"
     - "~/virtualenvs"
     - "~/.cache/pip"
   override:
