@@ -1,10 +1,8 @@
 machine:
-  python:
-    version: 2.7.14
-dependencies:
-  pre:
+  post:
     - pyenv install 2.7.14
     - pyenv install 3.6.3
+dependencies:
   cache_directories:
     - "~/virtualenvs"
     - "~/.cache/pip"
