@@ -114,10 +114,10 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     if len(msg['From'].split('<')) > 1:  # Determine if 'From' is formatted a specific way.
         # If it has 'Thomas Ward <teward@foo.bar>' for example, we need to split out the name for the restructuring.
         newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'].split('<')[0].strip(),
-                                                              'Example List', 'list@example.com'))
+                                                              list_name, list_address))
     else:
         # Otherwise, we just use the email address.
-        newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'], 'Example List', 'list@example.com'))
+        newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'], list_name, list_address))
     # Original 'From' address is now the Reply-To.
     newmsg['Reply-To'] = msg_components['From']
     newmsg['Subject'] = msg_components['Subject']  # Set the subject to match.

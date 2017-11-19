@@ -11,9 +11,8 @@
 ### Continuous Integration Status
 
 | CI Provider | Status                                                                                                                                                              |
-|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|:-----------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | Travis CI   | [![Travis-CI](https://travis-ci.org/teward/dmarcmsg.svg?branch=master)](https://travis-ci.org/teward/dmarcmsg)                                                  |
-| CircleCI    | [![CircleCI](https://circleci.com/gh/teward/dmarcmsg.svg?style=shield)](https://circleci.com/gh/teward/dmarcmsg)                                                |
 
 
 ## Description
@@ -53,7 +52,7 @@ This library is available from the PyPI repository.
 
 #### Installing / Importing in Code
 
-Simply copy the `imaplibext` package folder into your working directory for your Python script or program.
+Simply copy the `dmarcmsg` package folder into your working directory for your Python script or program.
 
 ## Usage
 
