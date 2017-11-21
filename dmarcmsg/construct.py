@@ -131,8 +131,8 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
         newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'], list_name, list_address))
     # Original 'From' address is now the Reply-To.
     newmsg['Reply-To'] = msg_components['From']
-    # But we need to add the ListServ to the "Cc" list because reasons.
-    newmsg['Cc'] = '{}'.format(list_address)
+    # But we need to add the ListServ and ourself to the "Cc" list because reasons.
+    newmsg['CC'] = '{}, {}'.format(list_address, msg['From'])
     newmsg['Subject'] = msg_components['Subject']  # Set the subject to match.
     newmsg['Message-ID'] = msg_components['Message-ID']
     newmsg['Date'] = msg_components['Date']
