@@ -121,6 +121,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
 
     # Now set headers properly.  These headers are set the same no matter whether we're using a multipart mesage
     # or a single part message.
+    newmsg['Sender'] = list_address
     newmsg['To'] = msg_components['To']  # Set the "To" field to be the original "To" address.
     if len(msg['From'].split('<')) > 1:  # Determine if 'From' is formatted a specific way.
         # If it has 'Thomas Ward <teward@foo.bar>' for example, we need to split out the name for the restructuring.
