@@ -11,10 +11,8 @@ import dmarcmsg.util.content_disposition
 def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allow_posts=True):
     multipart = msg.is_multipart()
     msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject'],
-                      'Message-ID': email.utils.make_msgid(), 'Date': msg['Date'], 'Payloads': []}
-
-    multipart_containers = 0
-
+                      'Message-ID': email.utils.make_msgid(), 'Date': msg['Date'], 'InnerPayloads': [],
+                      'OuterPayloads': [], 'Attachments': []}
     # Deconstruct original message into components for component dict.
     # Iterate through all parts of the email message.
     for part in msg.walk():
@@ -49,7 +47,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
                     data.set_payload(part.get_payload())
                     # ... and finally add it into the Payloads section of the components,
                     # as a tuple so we can identify it's got a filename and is an attachment.
-                    msg_components['Payloads'].append((data, attachfname))
+                    msg_components['Attachments'].append((data, attachfname))
             else:
                 # If we're not an attachment, we're probably something else.
                 if part.is_multipart():
@@ -61,25 +59,22 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
                     # ... by constructing the text message part...
                     data = MIMEText(part.get_payload(), _subtype=subtype)
                     # ... and then adding it to the Payloads.
-                    msg_components['Payloads'].append(data)
+                    msg_components['InnerPayloads'].append(data)
                 else:
                     # Any other MIMEType isn't to be handled and we just skip over that part
-                    # TODO: Properly format other MIMEType payloads.
+                    # TODO: Properly format other MIMEType payloads to Outer Payloads
                     continue
-        else:
-            # We need to count how many multipart containers there are.  Ideally there's only two.
-            multipart_containers += 1
 
     if not multipart:
         # If we're not making a multipart message, then only build a single-part message to send.
-        if len(msg_components['Payloads']) != 1:
+        if len(msg_components['InnerPayloads']) != 1:
             # However, if we aren't a multipart message and try to include more than one payload,
             # that's illegal and something is horribly wrong. So error.
             raise TypeError("You cannot have a non-multipart message with multiple payloads.")
 
         # We should only have one 'payload' that comprises the entire contents of the message,
         # so we should structure the MIMEBase object for the message.
-        mimepart = msg_components['Payloads'][0]
+        mimepart = msg_components['InnerPayloads'][0]
         # Get the content type for this part, though...
         maintype, subtype = mimepart.get_content_type().split('/', 1)
         # ...so we can properly create the proper MIMETyped base mail object.
@@ -87,14 +82,15 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
         # And then subsequently set this new MIMEBase object's payload and charset.
         newmsg.set_payload(mimepart.get_payload(), charset=mimepart.get_charset())
     else:
-        # Multipart needs more than one section to hold things, apparently.
+        # Multipart needs more than one section to hold things, apparently. Outer is 'mixed'
         newmsg = MIMEMultipart('mixed')
-        # Multipart messages have an outer 'multipart/alternative' MIME container we use.
+
+        # Multipart messages have an inner 'multipart/alternative' MIME container we use.
         newmsg_inner = MIMEMultipart('alternative')
 
         # Iterate over all individual payloads to add to the multipart msg as individual
         # parts and attach them to the new multipart message.
-        for payload in msg_components['Payloads']:
+        for payload in msg_components['InnerPayloads']:
             if type(payload) is not tuple:
                 # We don't need to repeat the 'MIME-Version' header everywhere; standard email client's don't
                 # after all.  So, just remove that header from the message payload/part.
@@ -103,21 +99,25 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
                 # Then, because of our custom 'payloads' holder, any non-tuple payload types
                 # are just standard MIME parts, just add them directly.
                 newmsg_inner.attach(payload)
-            else:
-                # Tupled payload values are attachments, so handle them as such...
-                # ... by first adding the content type parameter with the filename for 'text' type attachments...
-                if payload[0].get_content_type().split('/', 1)[0] == "text":
-                    payload[0].set_param('name', payload[1])
-                    if payload[0].get_content_type().split('/', 1)[1] == "plain":
-                        payload[0].set_param('Content-Transfer-Encoding', 'utf8')
-                # ... then by adding the valid Content-Disposition header for the attachment.
-                payload[0].add_header('Content-Disposition', 'attachment', filename=payload[1])
-                # ... and like with standard parts, don't repeat the MIME-Version header.
-                del payload[0]['MIME-Version']
-                # And finally, attach this payload to the multipart message.
-                newmsg.attach(payload[0])
 
+        # Now attach the inner multipart to the outer.
         newmsg.attach(newmsg_inner)
+        # And then iterate over attachments.
+        for payload in msg_components['Attachments']:
+            # Tupled payload values are attachments, so handle them as such...
+            # ... by first adding the content type parameter with the filename for 'text' type attachments...
+            maintype, subtype = payload[0].get_content_type().split('/', 1)
+            if maintype[0] == "text":
+                payload[0].set_param('name', payload[1])
+                if subtype == "plain" and 'Content-Transfer-Encoding' not in payload[0].keys():
+                    payload[0].add_header('Content-Transfer-Encoding', 'utf8')
+            # ... then by adding the valid Content-Disposition header for the attachment.
+            payload[0].add_header('Content-Disposition', 'attachment', filename=payload[1])
+            # ... and like with standard parts, don't repeat the MIME-Version header.
+            del payload[0]['MIME-Version']
+
+            # And finally, attach this payload to the multipart message.
+            newmsg.attach(payload[0])
 
     # Now set headers properly.  These headers are set the same no matter whether we're using a multipart mesage
     # or a single part message.
