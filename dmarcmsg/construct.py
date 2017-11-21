@@ -117,6 +117,8 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
                 # And finally, attach this payload to the multipart message.
                 newmsg.attach(payload[0])
 
+        newmsg.set_payload(newmsg_inner)
+
     # Now set headers properly.  These headers are set the same no matter whether we're using a multipart mesage
     # or a single part message.
     newmsg['To'] = msg_components['To']  # Set the "To" field to be the original "To" address.
