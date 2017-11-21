@@ -9,7 +9,6 @@ dependencies:
     - "~/.cache/pip"
   override:
     - case $CIRCLE_NODE_INDEX in 0) pyenv local 2.7.14 ;; 1) pyenv local 3.6.3 ;; esac
-    - shell echo "Python Version: $(pyenv local)"
     - case $CIRCLE_NODE_INDEX in 0) pip install flake8 --upgrade ;; 1) pip3 install flake8 --upgrade ;; esac
 test:
   override:
