@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import email
 import email.utils
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
