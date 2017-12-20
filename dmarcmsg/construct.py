@@ -126,14 +126,15 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     newmsg['To'] = msg_components['To']  # Set the "To" field to be the original "To" address.
     if len(msg['From'].split('<')) > 1:  # Determine if 'From' is formatted a specific way.
         # If it has 'Thomas Ward <teward@foo.bar>' for example, we need to split out the name for the restructuring.
-        newmsg.add_header('From', "\"{} via {}\" <{}>".format(msg['From'].split('<')[0].strip(),
+        newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'].split('<')[0].strip(),
                                                               list_name, list_address))
     else:
         # Otherwise, we just use the email address.
-        newmsg.add_header('From', "\"'{}' via {}\" <{}>".format(msg['From'], list_name, list_address))
+        newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'], list_name, list_address))
     # Original 'From' address is now the Reply-To.
     newmsg['Reply-To'] = msg_components['From']
     # But we need to add the ListServ and ourself to the "Cc" list because reasons.
+    newmsg['CC'] = '{}, {}'.format(list_address, msg['From'])
     newmsg['Subject'] = msg_components['Subject']  # Set the subject to match.
     newmsg['Message-ID'] = msg_components['Message-ID']
     newmsg['Date'] = msg_components['Date']
