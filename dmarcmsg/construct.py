@@ -25,17 +25,17 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     # From was retained, but has special handling.
     if len(newmsg['From'].split('<')) > 1:  # Determine if 'From' is formatted a specific way.
         # If it has 'Thomas Ward <teward@foo.bar>' for example, we need to split out the name for the restructuring.
-        newmsg.replace_header('From', "'{}' via '{}' <{}>".format(msg['From'].split('<')[0].strip().replace('"', ''),
-                                                                  list_name, list_address))
+        newmsg.replace_header('From', "'{}' via {} <{}>".format(msg['From'].split('<')[0].strip().replace('"', ''),
+                                                                list_name, list_address))
     else:
         # Otherwise, we just use the email address.
-        newmsg.replace_header('From', "'{}' via '{}' <{}>".format(msg['From'].strip().replace('"', ''), list_name,
-                                                                  list_address))
+        newmsg.replace_header('From', "'{}' via {} <{}>".format(msg['From'].strip().replace('"', ''), list_name,
+                                                                list_address))
 
     newmsg['Reply-To'] = msg_components['From']  # Reply-To is a new header, but was original 'From'
 
     # But we need to add the ListServ and ourself to the "Cc" list because reasons.
-    newmsg['CC'] = '{}; {}'.format(list_address, msg['From'])  # New header.
+    newmsg['CC'] = '{}; {}'.format(list_address, msg_components['From'])  # New header.
 
     # And finally, set Message-ID and Date.
     newmsg['Message-ID'] = email.utils.make_msgid()
