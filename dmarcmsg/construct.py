@@ -2,157 +2,71 @@
 
 import email
 import email.utils
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-
-import dmarcmsg.util.content_disposition
 
 
 def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allow_posts=True):
-    multipart = msg.is_multipart()
-    msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject'],
-                      'Message-ID': email.utils.make_msgid(), 'Date': msg['Date'], 'InnerPayloads': [],
-                      'OuterPayloads': [], 'Attachments': []}
-    # Deconstruct original message into components for component dict.
-    # Iterate through all parts of the email message.
-    for part in msg.walk():
-        if not part.is_multipart():
-            # If we hit a non-multipart piece, we need to do stuff with it.
-            # First, extract MIMEType data.
-            maintype, subtype = part.get_content_type().split('/', 1)
-            # Next, get the Content-Disposition.
-            cdisp = part.get("Content-Disposition")
-            if cdisp and not part.is_multipart():
-                # If we have a Content-Disposition and we're not in a multipart piece of the message...
-                # ... create a dict for easier searching of the cdisp.
-                cdisp_d = dmarcmsg.util.content_disposition.dict_from_string(cdisp)
-                if 'attachment' or 'inline' in cdisp_d:
-                    # And if we're an attachment of some sort...
+    msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject']}
 
-                    # Sanitize the filename.
-                    attachfname = cdisp_d['filename'].strip('"')
-                    attachfname = attachfname.replace('\r', '')
-                    attachfname = attachfname.replace('\n', '')
+    retain_headers = ['To', 'Subject', 'From', 'Date', 'Content-Type', 'MIME-Version',
+                      'Content-Language', 'Accept-Language']
 
-                    # Construct the MIMEBase message part for this MIMEType...
-                    data = MIMEBase(maintype, subtype)
-                    # ... and sets the Content-Type parameters to whatever they were in the original part...
-                    for param in part.get_params():
-                        if param not in data.get_params():
-                            data.set_param(param[0], param[1])
-                    # ... and sets the Content-Transfer-Encoding from the original part...
-                    if 'Content-Transfer-Encoding' in part.keys():
-                        data.add_header('Content-Transfer-Encoding', part['Content-Transfer-Encoding'])
-                    # ... then sets the Payload for the part...
-                    data.set_payload(part.get_payload())
-                    # ... and finally add it into the Payloads section of the components,
-                    # as a tuple so we can identify it's got a filename and is an attachment.
-                    msg_components['Attachments'].append((data, attachfname))
-            else:
-                # If we're not an attachment, we're probably something else.
-                if part.is_multipart():
-                    # Skip if multipart part.
-                    continue
+    newmsg = email.message_from_bytes(msg.as_bytes())
 
-                if maintype == "text":
-                    # We might be text, either Plain or HTML, so we need to add that to the payloads
-                    # ... by constructing the text message part...
-                    data = MIMEText(part.get_payload(), _subtype=subtype)
-                    # ... and then adding it to the Payloads.
-                    msg_components['InnerPayloads'].append(data)
-                else:
-                    # Any other MIMEType isn't to be handled and we just skip over that part
-                    # TODO: Properly format other MIMEType payloads to Outer Payloads
-                    continue
+    for key in newmsg.keys():
+        if key not in retain_headers:
+            del newmsg[key]
 
-    if not multipart:
-        # If we're not making a multipart message, then only build a single-part message to send.
-        if len(msg_components['InnerPayloads']) != 1:
-            # However, if we aren't a multipart message and try to include more than one payload,
-            # that's illegal and something is horribly wrong. So error.
-            raise TypeError("You cannot have a non-multipart message with multiple payloads.")
+    # Now, we have to set things properly - note some headers were not retained.
 
-        # We should only have one 'payload' that comprises the entire contents of the message,
-        # so we should structure the MIMEBase object for the message.
-        mimepart = msg_components['InnerPayloads'][0]
-        # Get the content type for this part, though...
-        maintype, subtype = mimepart.get_content_type().split('/', 1)
-        # ...so we can properly create the proper MIMETyped base mail object.
-        newmsg = MIMEBase(maintype, subtype)
-        # And then subsequently set this new MIMEBase object's payload and charset.
-        newmsg.set_payload(mimepart.get_payload(), charset=mimepart.get_charset())
-    else:
-        # Multipart needs more than one section to hold things, apparently. Outer is 'mixed'
-        newmsg = MIMEMultipart('mixed')
+    newmsg['Sender'] = list_address  # New header.
 
-        # Multipart messages have an inner 'multipart/alternative' MIME container we use.
-        newmsg_inner = MIMEMultipart('alternative')
+    newmsg.replace_header('To', msg_components['To'])  # Retained, so we replace contents.
 
-        # Iterate over all individual payloads to add to the multipart msg as individual
-        # parts and attach them to the new multipart message.
-        for payload in msg_components['InnerPayloads']:
-            if type(payload) is not tuple:
-                # We don't need to repeat the 'MIME-Version' header everywhere; standard email client's don't
-                # after all.  So, just remove that header from the message payload/part.
-                del payload['MIME-Version']
-
-                # Then, because of our custom 'payloads' holder, any non-tuple payload types
-                # are just standard MIME parts, just add them directly.
-                newmsg_inner.attach(payload)
-
-        # Now attach the inner multipart to the outer.
-        newmsg.attach(newmsg_inner)
-        # And then iterate over attachments.
-        for payload in msg_components['Attachments']:
-            # Tupled payload values are attachments, so handle them as such...
-            # ... by first adding the content type parameter with the filename for 'text' type attachments...
-            maintype, subtype = payload[0].get_content_type().split('/', 1)
-            if maintype[0] == "text":
-                payload[0].set_param('name', payload[1])
-                if subtype == "plain" and 'Content-Transfer-Encoding' not in payload[0].keys():
-                    payload[0].add_header('Content-Transfer-Encoding', 'utf8')
-            # ... then by adding the valid Content-Disposition header for the attachment.
-            payload[0].add_header('Content-Disposition', 'attachment', filename=payload[1])
-            # ... and like with standard parts, don't repeat the MIME-Version header.
-            del payload[0]['MIME-Version']
-
-            # And finally, attach this payload to the multipart message.
-            newmsg.attach(payload[0])
-
-    # Now set headers properly.  These headers are set the same no matter whether we're using a multipart mesage
-    # or a single part message.
-    newmsg['Sender'] = list_address
-    newmsg['To'] = msg_components['To']  # Set the "To" field to be the original "To" address.
-    if len(msg['From'].split('<')) > 1:  # Determine if 'From' is formatted a specific way.
+    # From was retained, but has special handling.
+    if len(newmsg['From'].split('<')) > 1:  # Determine if 'From' is formatted a specific way.
         # If it has 'Thomas Ward <teward@foo.bar>' for example, we need to split out the name for the restructuring.
-        newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'].split('<')[0].strip().replace('"', ''),
-                                                              list_name, list_address))
+        newmsg.replace_header('From', "'{}' via '{}' <{}>".format(msg['From'].split('<')[0].strip().replace('"', ''),
+                                                                  list_name, list_address))
     else:
         # Otherwise, we just use the email address.
-        newmsg.add_header('From', "'{}' via '{}' <{}>".format(msg['From'].strip().replace('"', ''), list_name,
-                                                              list_address))
-    # Original 'From' address is now the Reply-To.
-    newmsg['Reply-To'] = msg_components['From']
+        newmsg.replace_header('From', "'{}' via '{}' <{}>".format(msg['From'].strip().replace('"', ''), list_name,
+                                                                  list_address))
+
+    newmsg['Reply-To'] = msg_components['From']  # Reply-To is a new header, but was original 'From'
+
     # But we need to add the ListServ and ourself to the "Cc" list because reasons.
-    newmsg['CC'] = '{}, {}'.format(list_address, msg['From'])
-    newmsg['Subject'] = msg_components['Subject']  # Set the subject to match.
-    newmsg['Message-ID'] = msg_components['Message-ID']
-    newmsg['Date'] = msg_components['Date']
+    newmsg['CC'] = '{}; {}'.format(list_address, msg['From'])  # New header.
+
+    # And finally, set Message-ID and Date.
+    newmsg['Message-ID'] = email.utils.make_msgid()
+    newmsg['Date'] = email.utils.format_date()
+
     # Some lists add these next two headers, only add them if present in original message.
     if list_name and list_name != list_address:
-        newmsg['List-Id'] = "{} <{}>".format(list_name, list_address)
+        try:
+            newmsg.replace_header('List-Id', "{} <{}>".format(list_name, list_address))
+        except KeyError:
+            newmsg['List-Id'] = "{} <{}>".format(list_name, list_address)
     else:
-        newmsg['List-Id'] = "<{}>".format(list_address)
+        try:
+            newmsg.replace_header('List-Id', "<{}>".format(list_address))
+        except KeyError:
+            newmsg['List-Id'] = "<{}>".format(list_address)
 
     if allow_posts:
         if list_address and list_address != '':
-            newmsg['List-Post'] = "<mailto:{}>".format(list_address)
+            try:
+                newmsg.replace_header('List-Post', "<mailto:{}>".format(list_address))
+            except KeyError:
+                newmsg['List-Post'] = "<mailto:{}>".format(list_address)
 
         if moderated:
-            newmsg['List-Post'] += " (Postings are Moderated)"
+                newmsg.replace_header('List-Post', newmsg['List-Post'] + " (Postings are Moderated)")
     else:
-        newmsg['List-Post'] = "NO (posting not allowed on this list)"
+        try:
+            newmsg.replace_header('List-Post', "NO (posting not allowed on this list)")
+        except KeyError:
+            newmsg['List-Post'] = "NO (posting not allowed on this list)"
 
     return newmsg
 
