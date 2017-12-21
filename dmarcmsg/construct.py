@@ -39,7 +39,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
 
     # And finally, set Message-ID and Date.
     newmsg['Message-ID'] = email.utils.make_msgid()
-    newmsg['Date'] = email.utils.format_date()
+    newmsg['Date'] = email.utils.formatdate()
 
     # Some lists add these next two headers, only add them if present in original message.
     if list_name and list_name != list_address:
