@@ -8,7 +8,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject']}
 
     retain_headers = ['To', 'Subject', 'From', 'Date', 'Content-Type', 'MIME-Version',
-                      'Content-Language', 'Accept-Language']
+                      'Content-Language', 'Accept-Language', 'Auto-Submitted', 'Precedence']
 
     newmsg = email.message_from_bytes(msg.as_bytes())
 
@@ -67,6 +67,12 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
             newmsg.replace_header('List-Post', "NO (posting not allowed on this list)")
         except KeyError:
             newmsg['List-Post'] = "NO (posting not allowed on this list)"
+
+    # Precedence: ListServs send mail in 'bulk'.  Other acceptable options are 'list', but we don't do this.
+    try:
+        newmsg.replace_header('Precedence', 'bulk')
+    except KeyError:
+        newmsg['Precedence'] = 'bulk'
 
     return newmsg
 
