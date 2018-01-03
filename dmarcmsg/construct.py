@@ -8,7 +8,8 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject']}
 
     retain_headers = ['To', 'Subject', 'From', 'Date', 'Content-Type', 'MIME-Version',
-                      'Content-Language', 'Accept-Language', 'Auto-Submitted', 'Precedence']
+                      'Content-Language', 'Accept-Language', 'Auto-Submitted', 'Precedence',
+                      'Content-Transfer-Encoding']
 
     newmsg = email.message_from_bytes(msg.as_bytes())
 
