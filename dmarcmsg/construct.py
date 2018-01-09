@@ -33,11 +33,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
         # ... or there's just a pure email address.
         newfrom = email.utils.formataddr(("'{}' via '{}'".format(from_[1], list_name), list_address))
 
-    # Either way, replace the 'From' header with the new from header, or 'add' it if it doesn't already exist.
-    if 'From' not in newmsg.keys():
-        newmsg['From'] = newfrom
-    else:
-        newmsg.replace_header('From', newfrom)
+    newmsg.replace_header('From', newfrom)
 
     newmsg['Reply-To'] = msg_components['From']  # Reply-To is a new header, but was original 'From'
 
