@@ -23,20 +23,23 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
 
     newmsg.replace_header('To', msg_components['To'])  # Retained, so we replace contents.
 
+    from_ = email.utils.parseaddr(newmsg['From'])
+
     # From was retained, but has special handling.
-    if len(newmsg['From'].split('<')) > 1:  # Determine if 'From' is formatted a specific way.
-        # If it has 'Thomas Ward <teward@foo.bar>' for example, we need to split out the name for the restructuring.
-        newmsg.replace_header('From', "{} via {} <{}>".format(msg_components['From'].split('<')[0].strip(),
-                                                              list_name, list_address))
+    if from_[0] and from_[0] != '':
+        # There's a fancy "Real Name" field in here...
+        newfrom = email.utils.formataddr(("'{}' via '{}'".format(from_[0], list_name), list_address))
     else:
-        # Otherwise, we just use the email address.
-        newmsg.replace_header('From', "{} via {} <{}>".format(msg_components['From'].split('<')[0].strip(),
-                                                              list_name, list_address))
+        # ... or there's just a pure email address.
+        newfrom = email.utils.formataddr(("'{}' via '{}'".format(from_[1], list_name), list_address))
+
+    # Either way, replace the 'From' header with the new from header.p
+    newmsg.replace_header('From', newfrom)
 
     newmsg['Reply-To'] = msg_components['From']  # Reply-To is a new header, but was original 'From'
 
     # But we need to add the ListServ and ourself to the "Cc" list because reasons.
-    newmsg['CC'] = '{}; {}'.format(list_address, msg_components['From'])  # New header.
+    newmsg['CC'] = '{}'.format(msg_components['From'])  # New header.
 
     # And finally, set Message-ID and Date.
     newmsg['Message-ID'] = email.utils.make_msgid()
