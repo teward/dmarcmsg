@@ -7,14 +7,14 @@ import email.utils
 def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allow_posts=True):
     msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject']}
 
-    retain_headers = ['To', 'Subject', 'From', 'Date', 'Content-Type', 'MIME-Version',
-                      'Content-Language', 'Accept-Language', 'Auto-Submitted', 'Precedence',
-                      'Content-Transfer-Encoding']
+    retain_headers = ['to', 'subject', 'from', 'date', 'content-type', 'mime-version',
+                      'content-language', 'accept-language', 'auto-submitted', 'precedence',
+                      'content-transfer-encoding']
 
     newmsg = email.message_from_bytes(msg.as_bytes())
 
     for key in newmsg.keys():
-        if key not in retain_headers:
+        if str(key).lower() not in retain_headers:
             del newmsg[key]
 
     # Now, we have to set things properly - note some headers were not retained.
