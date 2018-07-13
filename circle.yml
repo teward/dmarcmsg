@@ -22,22 +22,27 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd ~/repo
+            python -m venv venv || virtualenv venv
+            . venv/bin/activate
             pip install -r requirements.txt --upgrade
 
       - run:
           name: Install Flake
           command: |
+            python -m venv venv || virtualenv venv
+            . venv/bin/activate
             pip install flake8 --upgrade
 
       - run:
           name: Run flake8
           command: |
-            cd ~/repo
+            python -m venv venv || virtualenv venv
+            . venv/bin/activate
             python -m flake8 .
 
       - run:
           name: run tests
           command: |
-            cd ~/repo
+            python -m venv venv || virtualenv venv
+            . venv/bin/activate
             python -m unittest -v tests
