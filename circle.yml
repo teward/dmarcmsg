@@ -40,7 +40,7 @@ jobs:
             python -m venv venv || virtualenv venv
             . venv/bin/activate
             cd ~/repo/
-            python -m flake8 --config=tox.ini .
+            python -m flake8 --config=tox.ini ./dmarcmsg/
 
       - run:
           name: run tests
