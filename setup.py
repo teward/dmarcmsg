@@ -17,7 +17,7 @@ setup(
     url='https://github.com/teward/dmarcmsg',
     download_url='https://pypi.python.org/pypi/dmarcmsg',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Environment :: Other Environment',
         'Intended Audience :: Developers',
