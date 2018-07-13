@@ -12,8 +12,9 @@ from typing import Union
 AnyStr = Union[str, bytes]
 
 
-def _construct_dmarc_message(msg: email.message.Message, list_name: AnyStr, list_address: AnyStr,
-                             moderated: bool = False, allow_posts: bool = True) -> email.message.Message:
+def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allow_posts=True):
+    # type: (email.message.Message, AnyStr, AnyStr, bool, bool) -> email.message.Message
+
     msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject']}
 
     retain_headers = ['to', 'subject', 'from', 'date', 'content-type', 'mime-version',
@@ -89,8 +90,8 @@ def _construct_dmarc_message(msg: email.message.Message, list_name: AnyStr, list
     return newmsg
 
 
-def from_string(msg_string: str, list_name: AnyStr, list_address: AnyStr, moderated: bool = False,
-                allow_posts: bool = True) -> email.message.Message:
+def from_string(msg_string, list_name, list_address, moderated=False, allow_posts=True):
+    # type: (str, AnyStr, AnyStr, bool, bool) -> email.message.Message
     """
     Constructs a new DMARC compliant listserv email message object from an existing one in a string-like object.
     :param msg_string: A string-like object containing the original message.
@@ -104,8 +105,8 @@ def from_string(msg_string: str, list_name: AnyStr, list_address: AnyStr, modera
                                     list_name, list_address, moderated, allow_posts)
 
 
-def from_bytes(msg_bytes: bytes, list_name: AnyStr, list_address: AnyStr, moderated: bool = False,
-               allow_posts: bool =True) -> email.message.Message:
+def from_bytes(msg_bytes, list_name, list_address, moderated=False, allow_posts=True):
+    # type: (bytes, AnyStr, AnyStr, bool, bool) -> email.message.Message
     """
     Constructs a new DMARC compliant listserv email message object from an existing one in a bytes-like object.
     :param msg_bytes: A bytes-like object containing the original message.
@@ -119,8 +120,8 @@ def from_bytes(msg_bytes: bytes, list_name: AnyStr, list_address: AnyStr, modera
                                     list_name, list_address, moderated, allow_posts)
 
 
-def from_message(msg_obj: email.message.Message, list_name: AnyStr, list_address: AnyStr, moderated: bool =False,
-                 allow_posts: bool = True) -> email.message.Message:
+def from_message(msg_obj, list_name, list_address, moderated=False, allow_posts=True):
+    # type: (email.message.Message, AnyStr, AnyStr, bool, bool) -> email.message.Message
     """
     Constructs a new DMARC compliant listserv email message object from an existing email message object.
     :param msg_obj: An instance of email.message.Message containing the original email message.
