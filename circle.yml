@@ -5,9 +5,9 @@ workflows:
   tests:
     jobs:
       - test-3.7
-#      - test-3.6
-#      - test-3.5
-#      - test-2.7
+      - test-3.6
+      - test-3.5
+      - test-2.7
 
 jobs:
   test-3.7: &test-template
@@ -42,10 +42,17 @@ jobs:
             cd ~/repo/
             python -m flake8 --config=tox.ini ./dmarcmsg/
 
-      - run:
-          name: run tests
-          command: |
-            python -m venv venv || virtualenv venv
-            . venv/bin/activate
-            cd ~/repo/
-            python -m unittest -v tests
+  test-3.6:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.6.6
+
+  test-3.5:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.5.5
+
+  test-2.7:
+    <<: *test-template
+    docker:
+      - image: circleci/python:2.7.15
