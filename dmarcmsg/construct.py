@@ -81,11 +81,14 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
         except KeyError:
             newmsg['List-Post'] = "NO (posting not allowed on this list)"
 
-    # Precedence: ListServs send mail in 'bulk'.  Other acceptable options are 'list', but we don't do this.
-    try:
-        newmsg.replace_header('Precedence', 'bulk')
-    except KeyError:
-        newmsg['Precedence'] = 'bulk'
+    # # Precedence: ListServs send mail in 'bulk'.  Other acceptable options are 'list', but we don't do this.
+    #
+    # Use of the Precedence header is discouraged in RFC 2076 - http://www.faqs.org/rfcs/rfc2076.html
+    #
+    # try:
+    #     newmsg.replace_header('Precedence', 'bulk')
+    # except KeyError:
+    #     newmsg['Precedence'] = 'bulk'
 
     return newmsg
 
