@@ -12,7 +12,7 @@
 
 | CI Provider | Status                                                                                                                                                              |
 |:-----------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Travis CI   | [![Travis-CI](https://travis-ci.org/teward/dmarcmsg.svg?branch=master)](https://travis-ci.org/teward/dmarcmsg)                                                  |
+| GitLab CI   | [![GitLab CI Pipeline](https://gitlab.com/teward/dmarcmsg/badges/master/pipeline.svg)](https://gitlab.com/teward/dmarcmsg/commits/master)                                                  |
 
 
 ## Description
