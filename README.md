@@ -58,10 +58,10 @@ Simply copy the `dmarcmsg` package folder into your working directory for your P
 
 The bulk of this library is designed to generate messages, but is ultimately fairly simple to use.
 
-Command and usage details can be found [here](https://github.com/teward/dmarcmsg/wiki/Commands-and-Usage).
+Command and usage details can be found [here](https://gitlab.com/teward/dmarcmsg/wiki/Commands-and-Usage).
 
 ## FAQ
 
 ### Where can I report issues or make Feature Requests?
 
-Issues can be reported on the [GitHub repository's Issues section.](https://github.com/teward/dmarcmsg/issues)
+Issues can be reported on the [GitLab repository's Issues section.](https://gitlab.com/teward/dmarcmsg/issues)
