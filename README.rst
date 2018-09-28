@@ -50,10 +50,9 @@ Continuous Integration Status
 +---------------+---------------+
 | CI Provider   | Status        |
 +===============+===============+
-| Travis CI     | |Travis-CI|   |
+| GitLab CI     | |GitLab-CI|   |
 +---------------+---------------+
-| CircleCI      | |CircleCI|    |
-+---------------+---------------+
+
 
 Description
 -----------
@@ -116,7 +115,7 @@ The bulk of this library is designed to generate messages, but is
 ultimately fairly simple to use.
 
 Command and usage details can be found
-`here <https://github.com/teward/dmarcmsg/wiki/Commands-and-Usage>`__.
+`here <https://gitlab.com/teward/dmarcmsg/wiki/Commands-and-Usage>`__.
 
 FAQ
 ---
@@ -124,10 +123,8 @@ FAQ
 Where can I report issues or make Feature Requests?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Issues can be reported on the `GitHub repository's Issues
-section. <https://github.com/teward/dmarcmsg/issues>`__
+Issues can be reported on the `GitLab repository's Issues
+section. <https://gitlab.com/teward/dmarcmsg/issues>`__
 
-.. |Travis-CI| image:: https://travis-ci.org/teward/dmarcmsg.svg?branch=master
-   :target: https://travis-ci.org/teward/dmarcmsg
-.. |CircleCI| image:: https://circleci.com/gh/teward/dmarcmsg.svg?style=shield
-   :target: https://circleci.com/gh/teward/dmarcmsg
+.. |GitLab-CI| image:: https://gitlab.com/teward/dmarcmsg/badges/master/pipeline.svg
+   :target: https://gitlab.com/teward/dmarcmsg/commits/master
