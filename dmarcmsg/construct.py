@@ -1,7 +1,9 @@
 # coding=utf-8
 
+import datetime
 import email
 import email.utils
+import time
 from typing import Union
 
 
@@ -50,9 +52,12 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     # But we need to add the ListServ and ourself to the "Cc" list because reasons.
     newmsg['CC'] = '{}'.format(msg_components['From'])  # New header.
 
-    # And finally, set Message-ID and Date.
+    # And finally, set Message-ID.
     newmsg['Message-ID'] = email.utils.make_msgid()
-    newmsg['Date'] = email.utils.formatdate()
+
+    # Only add in a new date field if the original date field is missing.
+    if 'date' not in [key.lower for key in newmsg.keys()]:
+        newmsg['Date'] = email.utils.formatdate(time.mktime(datetime.datetime.utcnow().timetuple()))
 
     # Some lists add these next two headers, only add them if present in original message.
     if list_name and list_name != list_address:
