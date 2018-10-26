@@ -32,5 +32,6 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='email dmarc listserv',
+    python_requires='>=3.5',
     platforms='any'
 )
