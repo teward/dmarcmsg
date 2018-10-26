@@ -46,7 +46,7 @@ class TestDMARCMSG(unittest.TestCase):
         self.assertIn(mailutil.parseaddr(self.msg['From'])[1], " ".join(self.dmarc.get_all('Cc')))
 
     def test_replyto(self):
-        self.assertIn(mailutil.parseaddr(self.msg['From'])[1], " ".join(self.dmarc['Reply-To']))
+        self.assertIn(mailutil.parseaddr(self.msg['From'])[1], self.dmarc['Reply-To'])
 
     def test_subjects_match(self):
         self.assertEqual(self.msg['Subject'], self.dmarc['Subject'])
