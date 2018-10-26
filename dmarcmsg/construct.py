@@ -56,7 +56,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     newmsg['Message-ID'] = email.utils.make_msgid()
 
     # Only add in a new date field if the original date field is missing.
-    if 'date' not in [key.lower for key in newmsg.keys()]:
+    if 'date' not in [key.lower() for key in newmsg.keys()]:
         newmsg['Date'] = email.utils.formatdate(time.mktime(datetime.datetime.utcnow().timetuple()))
 
     # Some lists add these next two headers, only add them if present in original message.
