@@ -2,7 +2,7 @@
 import datetime
 import dmarcmsg.construct
 import email.message
-from email.mime.text import  MIMEText
+from email.mime.text import MIMEText
 import email.utils as mailutil
 import pytz
 import time
