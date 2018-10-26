@@ -23,7 +23,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
                       'content-language', 'accept-language', 'auto-submitted', 'precedence',
                       'content-transfer-encoding']
 
-    newmsg = email.message_from_bytes(msg.as_bytes())
+    newmsg = email.message_from_string(msg.as_string())
 
     for key in newmsg.keys():
         if str(key).lower() not in retain_headers:
