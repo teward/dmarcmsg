@@ -33,5 +33,6 @@ setup(
     ],
     keywords='email dmarc listserv',
     python_requires='>=3.5',
-    platforms='any'
+    platforms='any',
+    test_suite='tests',
 )
