@@ -12,7 +12,9 @@ build:p35:
   - pip3 install -e .
   - echo "Running Flake..."
   - pip3 install flake8 --upgrade
-  - python -m flake8 --config=tox.ini ./imaplibext/
+  - python -m flake8 --config=tox.ini ./dmarcmsg/
+  - echo "Running tests..."
+  - python -m unittest tests.py
 
 build:p36:
   image: python:3.6-stretch
@@ -23,7 +25,9 @@ build:p36:
   - pip3 install -e .
   - echo "Running Flake..."
   - pip3 install flake8 --upgrade
-  - python -m flake8 --config=tox.ini ./imaplibext/
+  - python -m flake8 --config=tox.ini ./dmarcmsg/
+  - echo "Running tests..."
+  - python -m unittest tests.py
 
 build:p37:
   image: python:3.7-stretch
@@ -34,4 +38,6 @@ build:p37:
   - pip3 install -e .
   - echo "Running Flake..."
   - pip3 install flake8 --upgrade
-  - python -m flake8 --config=tox.ini ./imaplibext/
+  - python -m flake8 --config=tox.ini ./dmarcmsg/
+  - echo "Running tests..."
+  - python -m unittest tests.py
