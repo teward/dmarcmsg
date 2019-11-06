@@ -18,7 +18,6 @@ Please do not open issues on GitHub, they will get no attention at all and not b
 |:---------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------:|
 | GitLab CI             | [![GitLab CI Pipeline](https://gitlab.com/teward/dmarcmsg/badges/master/pipeline.svg)](https://gitlab.com/teward/dmarcmsg/commits/master) |
 | Appveyor              | [![Build status](https://ci.appveyor.com/api/projects/status/8ijyg4jg8116nxxf?svg=true)](https://ci.appveyor.com/project/teward/dmarcmsg) |
-| CircleCI (via GitHub) | [![CircleCI](https://circleci.com/gh/teward/dmarcmsg.svg?style=svg)](https://circleci.com/gh/teward/dmarcmsg)                             |
 | TravisCI (via GitHub) | [![Build Status](https://travis-ci.org/teward/dmarcmsg.svg?branch=master)](https://travis-ci.org/teward/dmarcmsg)                         |
 
 ## Description
