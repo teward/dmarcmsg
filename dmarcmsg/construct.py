@@ -85,7 +85,7 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
                 newmsg['List-Post'] = "<mailto:{}>".format(list_address)
 
         if moderated:
-                newmsg.replace_header('List-Post', newmsg['List-Post'] + " (Postings are Moderated)")
+            newmsg.replace_header('List-Post', newmsg['List-Post'] + " (Postings are Moderated)")
     else:
         try:
             newmsg.replace_header('List-Post', "NO (posting not allowed on this list)")
