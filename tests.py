@@ -9,7 +9,9 @@ import time
 import unittest
 
 
-# Helper function to generate the same or relatively same message each time before passing into DMARCMSG
+# Helper function to generate the same or relatively same message each time before passing into
+# DMARCMSG
+# noinspection PyMissingTypeHints
 def _generate_standard_test_message(to_="noreply@nonexistent.tld",
                                     from_="test@nonexistent.tld",
                                     subject_="Testing 123"):
@@ -25,9 +27,11 @@ def _generate_standard_test_message(to_="noreply@nonexistent.tld",
 
 
 # Tests to verify DMARCMSG works properly.
+# noinspection PyMissingTypeHints
 class TestDMARCMSG(unittest.TestCase):
     msg = _generate_standard_test_message()
-    dmarc = dmarcmsg.construct.from_message(msg, list_address='list@nonexistent.tld', list_name="MailingList")
+    dmarc = dmarcmsg.construct.from_message(msg, list_address='list@nonexistent.tld',
+                                            list_name="MailingList")
 
     def assert_messages_exist(self):
         self.assertIsNotNone(self.dmarc)

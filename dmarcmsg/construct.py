@@ -7,15 +7,17 @@ import time
 from typing import Union
 
 
-# AnyStr definition in typing has changed since the initial implementation of it for this library, such that it is
-# designed to *not* allow mixed types of strings (such as both bytes and str objects).  It used to behave instead like
-# Union[str, bytes].  So, we define AnyStr locally here as Union[str, bytes] so that code typing systems don't complain
-# about mixed str and bytes for AnyStr calls.
+# AnyStr definition in typing has changed since the initial implementation of it for this library,
+# such that it is designed to *not* allow mixed types of strings (such as both bytes and str
+# objects).  It used to behave instead like Union[str, bytes]. So, we define AnyStr locally here as
+# Union[str, bytes] so that code typing systems don't complain about mixed str and bytes for
+# AnyStr calls.
 AnyStr = Union[str, bytes]
 
 
-def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allow_posts=True):
-    # type: (email.message.Message, AnyStr, AnyStr, bool, bool) -> email.message.Message
+def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allow_posts=True,
+                             quotes_in_from=True):
+    # type: (email.message.Message, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
 
     msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject']}
 
@@ -37,13 +39,17 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
 
     from_ = email.utils.parseaddr(newmsg['From'])
 
+    if quotes_in_from:
+        newfromfmt = "'{}' via '{}'"
+    else:
+        newfromfmt = "{} via {}"
     # From was retained, but has special handling.
     if from_[0] and from_[0] != '':
         # There's a fancy "Real Name" field in here...
-        newfrom = email.utils.formataddr(("'{}' via '{}'".format(from_[0], list_name), list_address))
+        newfrom = email.utils.formataddr((newfromfmt.format(from_[0], list_name), list_address))
     else:
         # ... or there's just a pure email address.
-        newfrom = email.utils.formataddr(("'{}' via '{}'".format(from_[1], list_name), list_address))
+        newfrom = email.utils.formataddr((newfromfmt.format(from_[1], list_name), list_address))
 
     newmsg.replace_header('From', newfrom)
 
@@ -86,9 +92,11 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
         except KeyError:
             newmsg['List-Post'] = "NO (posting not allowed on this list)"
 
-    # # Precedence: ListServs send mail in 'bulk'.  Other acceptable options are 'list', but we don't do this.
+    # Precedence: ListServs send mail in 'bulk'.  Other acceptable options are 'list', but
+    # we don't do this.
     #
-    # Use of the Precedence header is discouraged in RFC 2076 - http://www.faqs.org/rfcs/rfc2076.html
+    # Use of the Precedence header is discouraged in RFC 2076 -
+    # http://www.faqs.org/rfcs/rfc2076.html
     #
     # try:
     #     newmsg.replace_header('Precedence', 'bulk')
@@ -98,45 +106,67 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     return newmsg
 
 
-def from_string(msg_string, list_name, list_address, moderated=False, allow_posts=True):
-    # type: (str, AnyStr, AnyStr, bool, bool) -> email.message.Message
+def from_string(msg_string, list_name, list_address, moderated=False, allow_posts=True,
+                quotes_in_from=True):
+    # type: (str, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
     """
-    Constructs a new DMARC compliant listserv email message object from an existing one in a string-like object.
+    Constructs a new DMARC compliant listserv email message object from an existing one in a
+    string-like object.
     :param msg_string: A string-like object containing the original message.
     :param list_name: The long name of the mailing list (for example, "Test List")
     :param list_address: The email address of the mailing list (for example, "list@example.com")
-    :param moderated: Optional, specify if posts to the mailing list are moderated. Default is "false"
-    :param allow_posts: Optional, specify if posting to the mailing list is permitted. Default is "True"
-    :return: A new Message object that contains a DMARC-compliant listserv message ready to be sent out to a list.
+    :param moderated: Optional, specify if posts to the mailing list are moderated. Default is
+    "false"
+    :param allow_posts: Optional, specify if posting to the mailing list is permitted. Default is
+    "True"
+    :param quotes_in_from: Optional, specify if you want to put single quotes around sections of
+    the "From" header, such as original sender name and list name. Default is "True"
+    :return: A new Message object that contains a DMARC-compliant listserv message ready to be sent
+    out to a list.
     """
     return _construct_dmarc_message(email.message_from_string(msg_string),
-                                    list_name, list_address, moderated, allow_posts)
+                                    list_name, list_address, moderated, allow_posts, quotes_in_from)
 
 
-def from_bytes(msg_bytes, list_name, list_address, moderated=False, allow_posts=True):
-    # type: (bytes, AnyStr, AnyStr, bool, bool) -> email.message.Message
+def from_bytes(msg_bytes, list_name, list_address, moderated=False, allow_posts=True,
+               quotes_in_from=True):
+    # type: (bytes, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
     """
-    Constructs a new DMARC compliant listserv email message object from an existing one in a bytes-like object.
+    Constructs a new DMARC compliant listserv email message object from an existing one in a
+    bytes-like object.
     :param msg_bytes: A bytes-like object containing the original message.
     :param list_name: The long name of the mailing list (for example, "Test List")
     :param list_address: The email address of the mailing list (for example, "list@example.com")
-    :param moderated: Optional, specify if posts to the mailing list are moderated. Default is "false"
-    :param allow_posts: Optional, specify if posting to the mailing list is permitted. Default is "True"
-    :return: A new Message object that contains a DMARC-compliant listserv message ready to be sent out to a list.
+    :param moderated: Optional, specify if posts to the mailing list are moderated. Default is
+    "false"
+    :param allow_posts: Optional, specify if posting to the mailing list is permitted. Default is
+    "True"
+    :param quotes_in_from: Optional, specify if you want to put single quotes around sections of
+    the "From" header, such as original sender name and list name. Default is "True"
+    :return: A new Message object that contains a DMARC-compliant listserv message ready to be sent
+    out to a list.
     """
     return _construct_dmarc_message(email.message_from_bytes(msg_bytes),
-                                    list_name, list_address, moderated, allow_posts)
+                                    list_name, list_address, moderated, allow_posts, quotes_in_from)
 
 
-def from_message(msg_obj, list_name, list_address, moderated=False, allow_posts=True):
-    # type: (email.message.Message, AnyStr, AnyStr, bool, bool) -> email.message.Message
+def from_message(msg_obj, list_name, list_address, moderated=False, allow_posts=True,
+                 quotes_in_from=True):
+    # type: (email.message.Message, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
     """
-    Constructs a new DMARC compliant listserv email message object from an existing email message object.
+    Constructs a new DMARC compliant listserv email message object from an existing email message
+    object.
     :param msg_obj: An instance of email.message.Message containing the original email message.
     :param list_name: The long name of the mailing list (for example, "Test List")
     :param list_address: The email address of the mailing list (for example, "list@example.com")
-    :param moderated: Optional, specify if posts to the mailing list are moderated. Default is "false"
-    :param allow_posts: Optional, specify if posting to the mailing list is permitted. Default is "True"
-    :return: A new Message object that contains a DMARC-compliant listserv message ready to be sent out to a list.
+    :param moderated: Optional, specify if posts to the mailing list are moderated. Default is
+    "false"
+    :param allow_posts: Optional, specify if posting to the mailing list is permitted. Default is
+    "True"
+    :param quotes_in_from: Optional, specify if you want to put single quotes around sections of
+    the "From" header, such as original sender name and list name. Default is "True"
+    :return: A new Message object that contains a DMARC-compliant listserv message ready to be sent
+    out to a list.
     """
-    return _construct_dmarc_message(msg_obj, list_name, list_address, moderated, allow_posts)
+    return _construct_dmarc_message(msg_obj, list_name, list_address, moderated, allow_posts,
+                                    quotes_in_from)
