@@ -55,9 +55,6 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
 
     newmsg['Reply-To'] = msg_components['From']  # Reply-To is a new header, but was original 'From'
 
-    # But we need to add the ListServ and ourself to the "Cc" list because reasons.
-    newmsg['CC'] = '{}'.format(msg_components['From'])  # New header.
-
     # And finally, set Message-ID.
     newmsg['Message-ID'] = email.utils.make_msgid()
 
