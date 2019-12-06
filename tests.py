@@ -1,7 +1,7 @@
 # coding=utf-8
 import datetime
 import dmarcmsg.construct
-import email.message
+import email
 from email.mime.text import MIMEText
 import email.utils as mailutil
 import unittest
