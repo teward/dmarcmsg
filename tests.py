@@ -41,9 +41,6 @@ class TestDMARCMSG(unittest.TestCase):
     def test_dates_match(self):
         self.assertEqual(self.msg['Date'], self.dmarc['Date'])
 
-    def test_from_in_cc(self):
-        self.assertIn(mailutil.parseaddr(self.msg['From'])[1], " ".join(self.dmarc.get_all('Cc')))
-
     def test_replyto(self):
         self.assertIn(mailutil.parseaddr(self.msg['From'])[1], self.dmarc['Reply-To'])
 
