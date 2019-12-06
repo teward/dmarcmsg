@@ -2,9 +2,7 @@
 
 
 # noinspection PyTypeChecker
-def dict_from_string(dispstr):
-    # type: (str) -> dict
-
+def dict_from_string(dispstr: str) -> dict:
     """
     Converts a string which contains a Content-Disposition
     header's contents into a dict.

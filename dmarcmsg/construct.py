@@ -3,7 +3,6 @@
 import datetime
 import email
 import email.utils
-import time
 from typing import Union
 
 
@@ -15,9 +14,23 @@ from typing import Union
 AnyStr = Union[str, bytes]
 
 
-def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allow_posts=True,
-                             quotes_in_from=True):
-    # type: (email.message.Message, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
+def _construct_dmarc_message(msg: email.message.Message, list_name: AnyStr,
+                             list_address: AnyStr, moderated: bool = False,
+                             allow_posts: bool = True,
+                             quotes_in_from: bool = True) -> email.message.Message:
+    """
+    Internal function that actually constructs the DMARC compliant message from an email message
+    object, which is created/utilized per one of the other three constructor functions.
+    :param msg: The email message being converted to DMARC compliant form (required)
+    :param list_name: The mailing list name (required)
+    :param list_address: The mailing list address (required)
+    :param moderated: Whether the list has moderation on it or not (optional, default False)
+    :param allow_posts: Whether the list allows posts sent to it (optional, default True)
+    :param quotes_in_from: Whether we use single quotes around the components which will construct
+    the From field ('noreply@domain.tld' via 'ListServ', for example). (optional, default True)
+    :return: email.message.Message object that is DMARC compliant for sending through a DMARC-
+    compliant mailing list.
+    """
 
     msg_components = {'To': msg['To'], 'From': msg['From'], 'Subject': msg['Subject']}
 
@@ -60,7 +73,8 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
 
     # Only add in a new date field if the original date field is missing.
     if 'date' not in [key.lower() for key in newmsg.keys()]:
-        newmsg['Date'] = email.utils.formatdate(time.mktime(datetime.datetime.utcnow().timetuple()))
+        # We can pipe the entire datetime into this without going through a time tuple first.
+        newmsg['Date'] = email.utils.format_datetime(datetime.datetime.utcnow())
 
     # Some lists add these next two headers, only add them if present in original message.
     if list_name and list_name != list_address:
@@ -103,9 +117,9 @@ def _construct_dmarc_message(msg, list_name, list_address, moderated=False, allo
     return newmsg
 
 
-def from_string(msg_string, list_name, list_address, moderated=False, allow_posts=True,
-                quotes_in_from=True):
-    # type: (str, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
+def from_string(msg_string: str, list_name: AnyStr, list_address: AnyStr,
+                moderated: bool = False, allow_posts: bool = True,
+                quotes_in_from: bool = True) -> email.message.Message:
     """
     Constructs a new DMARC compliant listserv email message object from an existing one in a
     string-like object.
@@ -125,9 +139,9 @@ def from_string(msg_string, list_name, list_address, moderated=False, allow_post
                                     list_name, list_address, moderated, allow_posts, quotes_in_from)
 
 
-def from_bytes(msg_bytes, list_name, list_address, moderated=False, allow_posts=True,
-               quotes_in_from=True):
-    # type: (bytes, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
+def from_bytes(msg_bytes: bytes, list_name: AnyStr, list_address: AnyStr,
+               moderated: bool = False, allow_posts: bool = True,
+               quotes_in_from: bool = True) -> email.message.Message:
     """
     Constructs a new DMARC compliant listserv email message object from an existing one in a
     bytes-like object.
@@ -147,9 +161,9 @@ def from_bytes(msg_bytes, list_name, list_address, moderated=False, allow_posts=
                                     list_name, list_address, moderated, allow_posts, quotes_in_from)
 
 
-def from_message(msg_obj, list_name, list_address, moderated=False, allow_posts=True,
-                 quotes_in_from=True):
-    # type: (email.message.Message, AnyStr, AnyStr, bool, bool, bool) -> email.message.Message
+def from_message(msg_obj: email.message.Message, list_name: AnyStr,
+                 list_address: AnyStr, moderated: bool = False, allow_posts: bool = True,
+                 quotes_in_from: bool = True) -> email.message.Message:
     """
     Constructs a new DMARC compliant listserv email message object from an existing email message
     object.

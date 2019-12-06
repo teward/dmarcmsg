@@ -4,24 +4,19 @@ import dmarcmsg.construct
 import email.message
 from email.mime.text import MIMEText
 import email.utils as mailutil
-import pytz
-import time
 import unittest
 
 
 # Helper function to generate the same or relatively same message each time before passing into
 # DMARCMSG
-# noinspection PyMissingTypeHints
-def _generate_standard_test_message(to_="noreply@nonexistent.tld",
-                                    from_="test@nonexistent.tld",
-                                    subject_="Testing 123"):
+def _generate_standard_test_message(to_: str = "noreply@nonexistent.tld",
+                                    from_: str = "test@nonexistent.tld",
+                                    subject_: str = "Testing 123") -> email.message.Message:
     msg = MIMEText("Test Message 123")
     msg['To'] = to_
     msg['From'] = from_
     msg['Subject'] = subject_
-    msg['Date'] = mailutil.formatdate(time.mktime(
-        pytz.timezone('US/Eastern').localize(datetime.datetime(2018, 10, 26, 11, 0, 0)).timetuple()
-    ))
+    msg['Date'] = mailutil.format_datetime(datetime.datetime.utcnow())
     msg['Message-ID'] = mailutil.make_msgid()
     return msg
 
