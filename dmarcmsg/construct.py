@@ -2,6 +2,7 @@
 
 import datetime
 import email
+import email.message
 import email.utils
 from typing import Union
 
